@@ -68,7 +68,7 @@ $ScriptPath = if (Split-Path $MyInvocation.MyCommand.Path -Parent) {Split-Path $
 
 # Validate git.exe requirement is met
 try {
-    $_git = Get-Command -Name 'git2.exe' -ErrorAction:Stop
+    $_git = Get-Command -Name 'git.exe' -ErrorAction:Stop
 }
 catch {
     throw 'Git.exe not found in path!'
