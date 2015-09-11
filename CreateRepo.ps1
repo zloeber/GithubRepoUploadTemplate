@@ -3,13 +3,19 @@
         
     .DESCRIPTION
         
-    .PARAMETER ModulePath
+    .PARAMETER ProjectPath
     
-    .PARAMETER APIKey
+    .PARAMETER GithubAuthor
         
-    .PARAMETER Tags
+    .PARAMETER AuthorWebsite
     
-    .PARAMETER ProjectURI
+    .PARAMETER GithubTitle
+    
+    .PARAMETER GithubDesc
+    
+    .PARAMETER GithubIntro
+    
+    .PARAMETER GithubRepo
         
     .EXAMPLE
 
@@ -35,7 +41,7 @@ param(
     [string]$GithubDesc,
     [parameter(Position=5, Mandatory=$true, HelpMessage='Github readme introduction text')]
     [string]$GithubIntro,
-    [parameter(Position=6, Mandatory=$true, HelpMessage='Github Repository upload url (ie. https://github.com/zloeber/GithubRepoUploadTemplate.git)')]
+    [parameter(Position=6, Mandatory=$true, HelpMessage='Github Repository upload url (ie. https://github.com/zloeber/GithubRepoUploadTemplate.git). Leave empty to skip linking to remote origin.')]
     [string]$GithubRepo
 )
 
@@ -60,6 +66,14 @@ function Get-ScriptPath {
 
 $ScriptPath = if (Split-Path $MyInvocation.MyCommand.Path -Parent) {Split-Path $MyInvocation.MyCommand.Path -Parent} else {$PWD}
 
+# Validate git.exe requirement is met
+try {
+    $_git = Get-Command -Name 'git2.exe' -ErrorAction:Stop
+}
+catch {
+    throw 'Git.exe not found in path!'
+}
+
 if (Test-Path $ProjectPath) {
     [string]$readme = [IO.File]::ReadAllText("$($ScriptPath)\templates\readme.md")
     $readme = $readme -replace '%%Title%%', $GithubTitle `
@@ -77,9 +91,19 @@ if (Test-Path $ProjectPath) {
     git init
     git add .
     git commit -m 'First Commit'
-    git remote add origin $GithubRepo
-    git remote -v
-    git push origin master
+    
+    if (-not [string]::IsNullOrEmpty($GithubRepo)) {
+        git remote add origin $GithubRepo
+        git remote -v
+        git push origin master
+    }
+    else {
+        Write-Output ''
+        Write-Output 'Skipping linking this repo to a remote origin. If you wish to do this yourself later on run the following commands:'
+        Write-Output '   git remote add origin https://github.com/yourgithubaccount/yourgithubrepo.git'
+        Write-Output '   git push origin master'
+        Write-Output ''
+    }
     cd $ScriptPath
 }
 else {
