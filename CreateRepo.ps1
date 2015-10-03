@@ -45,25 +45,6 @@ param(
     [string]$GithubRepo
 )
 
-function Get-ScriptPath {
-	$scriptDir = Get-Variable PSScriptRoot -ErrorAction SilentlyContinue | ForEach-Object { $_.Value }
-	if (-not $scriptDir) {
-		if ($MyInvocation.MyCommand.Path) {
-			$scriptDir = Split-Path $MyInvocation.MyCommand.Path -Parent
-		}
-	}
-	if (-not $scriptDir) {
-		if ($ExecutionContext.SessionState.Module.Path) {
-			$scriptDir = Split-Path (Split-Path $ExecutionContext.SessionState.Module.Path)
-		}
-	}
-	if (!$scriptDir) {
-		$scriptDir = $PWD
-	}
-	
-	$scriptDir
-}
-
 $ScriptPath = if (Split-Path $MyInvocation.MyCommand.Path -Parent) {Split-Path $MyInvocation.MyCommand.Path -Parent} else {$PWD}
 
 # Validate git.exe requirement is met
